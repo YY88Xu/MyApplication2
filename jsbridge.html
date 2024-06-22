@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h3>是我</h3>
+  <button onclick="handleClick()">调用 Android 方法</button>
+  <div id="show"></div>
+  <script src="https://cdn.bootcss.com/vConsole/3.3.4/vconsole.min.js"></script>
+  <script>
+    // 初始化
+  var vConsole = new VConsole();
+  console.log('Hello world');
+    function handleClick(){
+      if (window.WebViewJavascriptBridge) {
+        WebViewJavascriptBridge.callHandler(
+          'submitFromWeb'
+          , {'param': '参数测试'}
+          , function(responseData) {
+              document.getElementById("show").innerHTML = "send get responseData from java, data = " + responseData
+          }
+        );
+      } else {
+        document.getElementById("show").innerHTML = "WebViewJavascriptBridge is not loaded"
+      }
+    }
+
+    function connectWebViewJavascriptBridge(callback) {
+    if (window.WebViewJavascriptBridge) {
+      callback(WebViewJavascriptBridge)
+    } else {
+      document.addEventListener(
+        'WebViewJavascriptBridgeReady'
+        , function () {
+          callback(WebViewJavascriptBridge)
+        },
+        false
+      );
+    }
+  }
+
+  connectWebViewJavascriptBridge(function (bridge) {
+    //===1===在JS中注册默认的Handler，以方便Java调用，java通过send方法发送数据
+    bridge.init(function (message, responseCallback) {
+      console.log('JS got a message', message);
+      var data = {
+        'json': 'JS返回任意数据!'
+      };
+      console.log('JS responding with', data);/*打印信息*/
+      document.getElementById("init").innerHTML = "data = " + message;
+      responseCallback(data);
+    });
+    //===2===注册functionJs方法供java调用
+    bridge.registerHandler("functionJs", function (data, responseCallback) {
+      document.getElementById("show").innerHTML = ("Android端: = " + data);
+      var responseData = "Javascript 数据";
+      responseCallback(responseData);
+    });
+  })
+
+  </script>
+</body>
+</html>

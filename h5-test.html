@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>h5-test</title>
+</head>
+<body>
+  <span>JsBridge Example</span>
+  <button onClick="sendDataToApp()">Send Data to App</button>
+  <div id="log"></div>
+  <div>我是app触发的：</div>
+  <div id="app"></div>
+  <script>
+    function sendDataToApp(){
+      if (window.JsBridge && typeof window.JsBridge.sendDataToApp === 'function') {
+        window.JsBridge.sendDataToApp('Hello from Web');
+        document.getElementById('log').innerHTML = 'Data sent to App';
+      } else {
+        document.getElementById('log').innerHTML = 'sent data failed';
+      }
+    }
+
+    window.JsBridge.receiveDataFromApp = function(data) {
+      document.getElementById('app').innerHTML = 'Received data from App: ' + data;
+    }
+  </script>
+</body>
+</html>
